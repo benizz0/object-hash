@@ -52,11 +52,11 @@ exports.keysMD5 = function(object){
 };
 
 // Internals
-var hashes = crypto.getHashes ? crypto.getHashes().slice().map(hash => hash.toLowerCase()) : ['sha1', 'md5'];
+var hashes = crypto.getHashes ? crypto.getHashes().slice().map(function (hash) { return hash.toLowerCase(); }) : ['sha1', 'md5'];
 hashes.push('passthrough');
-var hashesMap = new Map(hashes.map(hash => [hash, true]));
+var hashesMap = new Map(hashes.map(function (hash) { return [hash, true]; }));
 var encodings = ['buffer', 'hex', 'binary', 'base64'];
-var encodingsMap = new Map(encodings.map(encoding => [encoding, true]));
+var encodingsMap = new Map(encodings.map(function (encoding) { return [encoding, true]; }));
 
 var defaultOptions = {
   algorithm: 'sha1',
@@ -79,7 +79,9 @@ function applyDefaults(object, sourceOptions){
   }
 
   if (typeof sourceOptions === 'undefined')
+  { 
     return defaultOptions;
+  }
 
   var options = {
     algorithm: sourceOptions.algorithm ? sourceOptions.algorithm.toLowerCase() : 'sha1',
@@ -99,10 +101,13 @@ function applyDefaults(object, sourceOptions){
   // if there is a case-insensitive match in the hashes list, accept it
   // (i.e. SHA256 for sha256)
   if (hashesMap.has(options.algorithm.toLowerCase()))
-    options.algorithm = options.algorithm.toLowerCase();
-  else
+  {
+      options.algorithm = options.algorithm.toLowerCase();
+  }
+  else {
     throw new Error('Algorithm "' + options.algorithm + '"  not supported. ' +
       'supported values: ' + hashes.join(', '));
+  }
 
   if(!encodingsMap.has(options.encoding) &&
      options.algorithm !== 'passthrough'){
@@ -144,7 +149,9 @@ function hash(object, options) {
     hashStream.update(finalValue);
 
     if (hashStream.digest)
+    {
       return hashStream.digest(options.encoding === 'buffer' ? undefined : options.encoding);
+    }
 
     if (options.encoding === 'buffer') {
       return buf;
@@ -216,12 +223,13 @@ function typeHasher(options, writeTo, context){
 
       var baseKeysPath = keysPath.slice(); // clone
       // '[object a]'.length === 10, the minimum
-      if (objectLength < 10)
+      if (objectLength < 10) {
         objType = 'unknown:[' + objString + ']';
-      else
+      }
+      else {
         // '[object '.length === 8
-        objType = objString.slice(8, objectLength - 1)
-
+        objType = objString.slice(8, objectLength - 1);
+      }
       objType = objType.toLowerCase();
 
       var objectNumber = null;
@@ -265,7 +273,7 @@ function typeHasher(options, writeTo, context){
           keys = keys.filter(function(key) { return !options.excludeKeys(key, baseKeysPath.concat([key])); });
         }
 
-        write('object:' + (keys.length + extraKeys.length) + ':');
+        write('object:' + (keys.length) + ':');
         var self = this;
         var callbackDispatch = function(key){
           keysPath = baseKeysPath.concat([key]);
@@ -276,10 +284,12 @@ function typeHasher(options, writeTo, context){
             self.dispatch(object[key]);
             write(',');
           } else 
-            write(':,');
+          {
+            write(':,'); 
+          }
         };
 
-        extraKeys.forEach(callbackDispatch);
+        //extraKeys.forEach(callbackDispatch);
         return keys.forEach(callbackDispatch);
       }
     },
